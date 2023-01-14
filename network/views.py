@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_protect
 
 
-from .models import User, Hometown, Posts
+from .models import User, Hometown, Posts, Likes
 from .forms import PostForm
 
 
@@ -67,6 +67,25 @@ def edit_post(request, post_id):
         return HttpResponseRedirect(reverse('index'))
 
 
+@csrf_protect
+def like_post(request, post_id):
+    if request.method == 'POST':
+        # exists = 
+        if not Likes.objects.filter(post=post_id, user=request.user):
+            Likes.objects.create(user=request.user, post = Posts.objects.get(pk=post_id))
+            likes = Likes.objects.filter(post=post_id).count()
+            Posts.objects.filter(id=post_id).update(likes_count=likes)
+            return JsonResponse({"message": "Like added"}, status=200)
+        else:
+            Likes.objects.filter(user=request.user, post=post_id).delete()
+            likes = Likes.objects.filter(post=post_id).count()
+            Posts.objects.filter(id=post_id).update(likes_count=likes)
+            return JsonResponse({"message": "Like removed"}, status=200)
+    else:
+        return HttpResponseRedirect(reverse('index'))
+
+
+
 def login_view(request):
     if request.method == "POST":
 
@@ -119,6 +138,7 @@ def register(request):
         return render(request, "network/register.html")
 
 
+@csrf_protect
 def edit_profile(request):
     if request.user.is_authenticated:
         if request.method == "POST":

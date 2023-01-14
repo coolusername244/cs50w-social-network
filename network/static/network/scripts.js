@@ -70,6 +70,34 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     });
 
+    // like button
+    document.querySelectorAll('.like-button').forEach((element) => {
+        element.onclick = function() {
+            let likes = parseInt(element.innerHTML);
+            const postId = element.parentElement.parentElement.parentElement.getAttribute('id').slice(5);
+            const csrftoken = element.previousElementSibling.value;
+            fetch(`/like_post/${postId}`, {
+                method: 'POST',
+                headers:{
+                    'X-csrftoken': csrftoken
+                },
+                body: JSON.stringify({
+                    post: postId
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message === 'Like added') {
+                    likes++;
+                    element.innerHTML = likes;
+                } else if (result.message === 'Like removed') {
+                    likes--;
+                    element.innerHTML = likes;
+                }
+            });
+        };
+    });
+
     // Auto fill location input when user types
     new Autocomplete('#autocomplete', {
         search: input => {

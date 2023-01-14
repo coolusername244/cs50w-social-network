@@ -26,3 +26,11 @@ class Posts(models.Model):
     post = models.TextField()
     date = models.DateTimeField(auto_now_add=True)
     likes_count = models.IntegerField(default=0, editable=False)
+
+
+class Likes(models.Model):
+    class Meta:
+        verbose_name_plural = 'Likes'
+
+    post = models.ForeignKey('Posts', on_delete=models.CASCADE)
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
