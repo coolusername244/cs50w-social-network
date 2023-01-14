@@ -1,0 +1,56 @@
+{% extends "network/layout.html" %}
+
+{% block title %}
+
+    Edit Profile
+
+{% endblock %}
+{% block body %}
+<div class="card text-center">
+    <div class="card-header">
+        <h5 class="card-title">Hi there {{ request.user }}! Here you can complete your profile</h5>
+    </div>
+    <div class="card-body">
+        <form action="{% url 'edit_profile' %}" method="post">
+            {% csrf_token %}
+            <!-- First name -->
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="floatingInput" placeholder="First Name" name="first_name" value="{{ first_name }}">
+                <label for="floatingInput">First Name:</label>
+            </div>
+            <!-- Last name -->
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="floatingInput" placeholder="Last Name" name="last_name" value="{{ last_name }}">
+                <label for="floatingInput">Last Name:</label>
+            </div>
+            <!-- Profile pic -->
+            <div class="mb-3 text-start">
+                <label for="formFile" class="form-label">Profile Picture:</label>
+                <input class="form-control" name="profile_pic" type="file" id="formFile" value="{{ profile_pic }}">
+            </div>
+            <!-- Birthday -->
+            <div class="form-floating mb-3">
+                <input type="date" class="form-control" id="floatingInput" placeholder="Birthday" name="birthday" value="{{ birthday|date:'Y-m-d' }}">
+                <label for="floatingInput">Birthday:</label>
+            </div>
+            <!-- Location -->
+            <div class="form-floating mb-3" id="autocomplete">
+                <input type="text" class="form-control" id="floatingInput" placeholder="Location" name="location" {% if location %}value="{{ location }}"{% endif %}>
+                <label for="floatingInput">Location:</label>
+                <ul class="autocomplete-result-list text-start"></ul>
+            </div>
+            <!-- Bio -->
+            <div class="form-floating mb-3">
+                <textarea class="form-control" name="bio" placeholder="Bio" id="bio">
+                    {% if bio %}
+                        {{ bio }}
+                    {% endif %}
+                </textarea>
+                <label for="bio">Bio:</label>
+            </div>
+            <button id="submit" type="submit" class="btn btn-primary mb-3">Submit</button>
+            <a class="btn btn-danger mb-3" href="{% url 'index' %}">Skip</a>
+        </form>
+    </div>
+</div> 
+{% endblock %}
