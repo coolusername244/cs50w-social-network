@@ -8,6 +8,53 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelector('.content').style.height = `calc(100vh - ${document.querySelector('.navbar').offsetHeight}px - ${document.querySelector('.alert').offsetHeight}px)`;
     }
 
+    // On click, show the div for user to create a new postv
+    document.querySelector('#create-post-button').addEventListener('click', () => {
+        document.querySelector('#new-post').style.display = 'block';
+        document.querySelector('#create-post-button').style.display = 'none';
+    });
+
+    // On click, hide the div for user to create a new post
+    document.querySelector('#close-new-post').addEventListener('click', () => {
+        document.querySelector('#id_post').value = '';
+        document.querySelector('#new-post').style.display = 'none';
+        document.querySelector('#create-post-button').style.display = 'block';
+    });
+
+    // On click, make the post editable if the post belongs to the user
+    document.querySelectorAll('.edit').forEach((element) => {
+        element.onclick = function() {
+            element.style.display = "none";
+            element.nextElementSibling.style.display = "inline";
+            const postDivText = element.parentElement.parentElement.parentElement.querySelector('.card-text');
+            postDivText.contentEditable = true;
+            postDivText.classList.add('form-control');
+            postDivText.focus();
+        };
+    });
+
+    // On click, make the post uneditable and save the changes to database
+    document.querySelectorAll('.save-changes').forEach((element) => {
+        element.onclick = function() {
+            element.style.display = "none";
+            element.previousElementSibling.style.display = "inline";
+            const postDivText = element.parentElement.parentElement.parentElement.querySelector('.card-text');
+            postDivText.contentEditable = false;
+            postDivText.classList.remove('form-control');
+            const postId = element.parentElement.parentElement.parentElement.getAttribute('id').slice(5);
+            const csrftoken = element.previousElementSibling.previousElementSibling.value;
+            fetch(`/posts/${postId}`, {
+                method: 'PUT',
+                headers:{
+                    'X-csrftoken': csrftoken
+                },
+                body: JSON.stringify({
+                    post: postDivText.textContent,
+                })
+            });
+        };
+    });
+
     // Auto fill location input when user types
     new Autocomplete('#autocomplete', {
         search: input => {

@@ -3,12 +3,45 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.core.paginator import Paginator
+from django.views.decorators.csrf import csrf_protect
 
-from .models import User, Hometown
+
+from .models import User, Hometown, Posts
+from .forms import PostForm
 
 
 def index(request):
-    return render(request, "network/index.html")
+    post_form = PostForm()
+    posts = Posts.objects.all()
+    posts = posts.order_by("-date").all()
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    page_range = paginator.get_elided_page_range(number=page_number, on_each_side=1)
+
+    context = {
+        "posts": posts,
+        "post_form": post_form,
+        "page_obj": page_obj,
+        "page_range": page_range,
+    }
+
+    return render(request, "network/index.html", context)
+
+
+@csrf_protect
+def add_post(request):
+    if request.method == "POST":
+        form = PostForm(request.POST)
+        if form.is_valid():
+            form.instance.user = request.user
+            form.save()
+            return HttpResponseRedirect(reverse('index'))
+        else:
+            return HttpResponseRedirect(reverse('index'))
+    else:
+        return HttpResponseRedirect(reverse('index'))
 
 
 def login_view(request):
@@ -95,7 +128,7 @@ def edit_profile(request):
                 "profile_pic": user.profile_pic,
                 "birthday": user.birthday,
                 "location": user.location,
-                "bio": user.bio,
+                "bio": user.bio.strip(),
             }
 
             return render(request, "network/edit_profile.html", context)

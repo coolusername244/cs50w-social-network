@@ -1,5 +1,84 @@
 {% extends "network/layout.html" %}
 
+{% block title %}
+    Home
+{% endblock %}
+
 {% block body %}
-    TODO
+
+<button class="btn btn-primary" id="create-post-button">
+    Add Post!
+</button>
+
+<div id="new-post-div">
+    <div class="card text-center mb-5" id="new-post">
+        <div class="card-header">
+            Add New Post<button class="btn-close" id="close-new-post" type="button"></button>
+        </div>
+        <div class="card-body text-center">
+            <form action="{% url 'add_post' %}" method="post">
+                {% csrf_token %}
+                {{ post_form }}
+                <button type="submit" class="btn btn-primary">Post</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="posts">
+    {% if posts %}
+        {% for post in page_obj %}
+            <div class="card mb-3" id="post-{{ post.id }}">
+                <h5 class="card-header"><a href="profile/{{ post.user.id }}">{{ post.user }}</a> wrote: 
+                    {% if request.user == post.user %}
+                        <form class="edit-delete">
+                            {% csrf_token %}
+                            <span class="edit"><i class="bi bi-pencil-square"></i></span>
+                            <span type="submit" class="save-changes"><i class="bi bi-check-circle"></i></span> 
+                            | 
+                            <span class="delete"><i class="bi bi-x-circle"></i></span>
+                        </form>
+                    {% endif %}
+                </h5>               
+                <div class="card-body">
+                    <p class="card-text">
+                        {{ post.post }}
+                    </p>
+                    <p>
+                        {{ post.date }}
+                    </p>
+                    <form>
+                        {% csrf_token %}
+                        <p class="btn btn-sm btn-outline-danger like-button bi bi-heart">
+                            {{ post.likes_count }}
+                        </p>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if posts|length >= 11 %}
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+            {% endif %}
+            {% for i in page_range|default_if_none:page_obj.paginator.get_elided_page_range %}
+                {% if page_obj.number == i %}
+                    <li class="active page-item"><span class="page-link">{{ i }} <span class="sr-only"></span></span>
+                    </li>
+                {% else %}
+                    {% if i == page_obj.paginator.ELLIPSIS %}
+                        <li class="page-item"><span class="page-link">{{ i }}</span></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+            {% endif %}
+        </ul>
+    {% endif %}
+</div>
 {% endblock %}

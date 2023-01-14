@@ -15,3 +15,14 @@ class Hometown(models.Model):
 
     def __str__(self):
         return f"{self.hometown}"
+
+
+class Posts(models.Model):
+
+    class Meta:
+        verbose_name_plural = 'Posts'
+
+    user = models.ForeignKey("User", on_delete=models.CASCADE)
+    post = models.TextField()
+    date = models.DateTimeField(auto_now_add=True)
+    likes_count = models.IntegerField(default=0, editable=False)

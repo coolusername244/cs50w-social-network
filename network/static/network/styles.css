@@ -25,3 +25,48 @@ body {
 #bio {
     min-height: 7rem;
 }
+
+#create-post-button {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+}
+
+.card {
+    width: 80%;
+    margin-left: 10%;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.btn-close {
+    float: right;
+}
+
+.edit-delete {
+    float: right;
+    font-weight: lighter;
+    font-size: smaller;
+}
+
+.edit {
+    color: lightskyblue;
+    cursor: pointer;
+}
+
+.save-changes {
+    display: none;
+    color: lightskyblue;
+    cursor: pointer;
+}
+
+.delete {
+    color: red;
+    cursor: pointer;
+}
+
+#new-post {
+    display: none;
+}

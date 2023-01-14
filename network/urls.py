@@ -11,4 +11,5 @@ urlpatterns = [
     path("register", views.register, name="register"),
     path("edit_profile", views.edit_profile, name="edit_profile"),
     path("get_hometown/", views.get_hometown, name="get_hometown"),
+    path("add_post", views.add_post, name="add_post"),
 ]
