@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -49,6 +51,18 @@ def delete_post(request, post_id):
     if request.method == 'DELETE':
         Posts.objects.filter(pk=post_id).delete()
         return JsonResponse({"message": "Message deleted"}, status=200)
+    else:
+        return HttpResponseRedirect(reverse('index'))
+
+
+@csrf_protect
+def edit_post(request, post_id):
+    if request.method == 'PUT':
+        data = request.body
+        post_data = json.loads(data)
+        post = post_data['post'].strip()
+        Posts.objects.filter(id=post_id).update(post=post)
+        return JsonResponse({"message": "message edited"})
     else:
         return HttpResponseRedirect(reverse('index'))
 

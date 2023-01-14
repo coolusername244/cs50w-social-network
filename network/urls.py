@@ -13,5 +13,6 @@ urlpatterns = [
     path("get_hometown/", views.get_hometown, name="get_hometown"),
     path("add_post", views.add_post, name="add_post"),
     path("delete_post/<int:post_id>", views.delete_post, name="delete_post"),
+    path("posts/<int:post_id>", views.edit_post, name="post"),
 
 ]
