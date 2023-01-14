@@ -6,6 +6,7 @@
 
 {% block body %}
 
+{% if request.user.is_authenticated %}
 <button class="btn btn-primary" id="create-post-button">
     Add Post!
 </button>
@@ -24,6 +25,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 <div id="posts">
     {% if posts %}

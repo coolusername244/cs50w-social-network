@@ -85,7 +85,6 @@ def like_post(request, post_id):
         return HttpResponseRedirect(reverse('index'))
 
 
-
 def login_view(request):
     if request.method == "POST":
 
