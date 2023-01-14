@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User
+from .models import User, Hometown
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -9,5 +9,12 @@ class UserAdmin(admin.ModelAdmin):
         "username"
     )
 
+class HometownAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "hometown"
+    )
+
 
 admin.site.register(User, UserAdmin)
+admin.site.register(Hometown, HometownAdmin)

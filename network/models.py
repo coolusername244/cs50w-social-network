@@ -4,3 +4,8 @@ from django.db import models
 
 class User(AbstractUser):
     pass
+
+
+class Hometown(models.Model):
+
+    hometown = models.CharField(max_length=100)
