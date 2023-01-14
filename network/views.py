@@ -44,6 +44,15 @@ def add_post(request):
         return HttpResponseRedirect(reverse('index'))
 
 
+@csrf_protect
+def delete_post(request, post_id):
+    if request.method == 'DELETE':
+        Posts.objects.filter(pk=post_id).delete()
+        return JsonResponse({"message": "Message deleted"}, status=200)
+    else:
+        return HttpResponseRedirect(reverse('index'))
+
+
 def login_view(request):
     if request.method == "POST":
 

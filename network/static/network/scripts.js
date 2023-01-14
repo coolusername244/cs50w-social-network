@@ -55,6 +55,21 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     });
 
+    // On click, delete the post if the post belongs to the user
+    document.querySelectorAll('.delete').forEach((element) => {
+        element.onclick = function() {
+            element.parentElement.parentElement.parentElement.style.display = 'none';
+            const csrftoken = element.previousElementSibling.previousElementSibling.previousElementSibling.value;
+            const postId = element.parentElement.parentElement.parentElement.getAttribute('id').slice(5);
+            fetch(`/delete_post/${postId}`, {
+                method: 'DELETE',
+                headers:{
+                    'X-csrftoken': csrftoken
+                }
+            });
+        };
+    });
+
     // Auto fill location input when user types
     new Autocomplete('#autocomplete', {
         search: input => {
