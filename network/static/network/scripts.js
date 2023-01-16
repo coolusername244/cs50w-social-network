@@ -8,12 +8,12 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelector('.content').style.height = `calc(100vh - ${document.querySelector('.navbar').offsetHeight}px - ${document.querySelector('.alert').offsetHeight}px)`;
     }
 
-    // On click, show the div for user to create a new postv
+    // On click, show the div for user to create a new post
     document.querySelector('#create-post-button').addEventListener('click', () => {
         document.querySelector('#new-post').style.display = 'block';
         document.querySelector('#create-post-button').style.display = 'none';
     });
-
+   
     // On click, hide the div for user to create a new post
     document.querySelector('#close-new-post').addEventListener('click', () => {
         document.querySelector('#id_post').value = '';
@@ -97,21 +97,5 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         };
     });
-
-    // Auto fill location input when user types
-    new Autocomplete('#autocomplete', {
-        search: input => {
-            // console.log(input)
-            const url = `get_hometown/?search=${input}`
-            return new Promise(resolve => {
-                fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    // console.log(data.payload)
-                    resolve(data.payload)
-                })
-            })
-        },
-    })
 })
 

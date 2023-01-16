@@ -26,6 +26,10 @@ body {
     min-height: 7rem;
 }
 
+#profile-pic {
+    max-width: 15rem;
+}
+
 #create-post-button {
     position: absolute;
     top: 1rem;

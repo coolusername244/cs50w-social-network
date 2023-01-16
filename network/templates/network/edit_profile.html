@@ -1,52 +1,66 @@
 {% extends "network/layout.html" %}
 
-{% block title %}
-
-    Edit Profile
-
-{% endblock %}
+{% block title %} 
+    Edit Profile 
+{% endblock %} 
 {% block body %}
 <div class="card text-center">
     <div class="card-header">
-        <h5 class="card-title">Hi there {{ request.user }}! Here you can complete your profile</h5>
+        <h5 class="card-title">
+            Hi there {{ request.user }}! Here you can complete your profile
+        </h5>
     </div>
     <div class="card-body">
-        <form action="{% url 'edit_profile' %}" method="post">
+        <form action="{% url 'edit_profile' %}" method="post" class="text-start" enctype="multipart/form-data">
             {% csrf_token %}
-            <!-- First name -->
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control" id="floatingInput" placeholder="First Name" name="first_name" value="{{ first_name }}">
-                <label for="floatingInput">First Name:</label>
+            {% for field in form %}
+                {% if field.name == 'location' %}
+                <div class="mb-3" id="autocomplete">
+                    <label for="exampleFormControlInput1" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    <ul class="autocomplete-result-list text-start"></ul>
+                </div>
+                {% elif field.name == 'profile_pic' %}
+                    {% if user_info.profile_pic %}
+                        <div class="mb-3">
+                            <label for="exampleFormControlInput1" class="form-label">Current Profile Pic</label>
+                            <img class="form-control" id="profile-pic" src="{{ user_info.profile_pic.url }} " alt="profile_pic">
+                        </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput1" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                {% else %}
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput1" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                {% endif %} 
+            {% endfor %}
+            <div class="text-center">
+                <button id="submit" type="submit" class="btn btn-primary mb-3">
+                    Submit
+                </button>
+                <a class="btn btn-danger mb-3" href="{% url 'index' %}">Skip</a>
             </div>
-            <!-- Last name -->
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control" id="floatingInput" placeholder="Last Name" name="last_name" value="{{ last_name }}">
-                <label for="floatingInput">Last Name:</label>
-            </div>
-            <!-- Profile pic -->
-            <div class="mb-3 text-start">
-                <label for="formFile" class="form-label">Profile Picture:</label>
-                <input class="form-control" name="profile_pic" type="file" id="formFile" value="{{ profile_pic }}">
-            </div>
-            <!-- Birthday -->
-            <div class="form-floating mb-3">
-                <input type="date" class="form-control" id="floatingInput" placeholder="Birthday" name="birthday" value="{{ birthday|date:'Y-m-d' }}">
-                <label for="floatingInput">Birthday:</label>
-            </div>
-            <!-- Location -->
-            <div class="form-floating mb-3" id="autocomplete">
-                <input type="text" class="form-control" id="floatingInput" placeholder="Location" name="location" {% if location %}value="{{ location }}"{% endif %}>
-                <label for="floatingInput">Location:</label>
-                <ul class="autocomplete-result-list text-start"></ul>
-            </div>
-            <!-- Bio -->
-            <div class="form-floating mb-3">
-                <textarea class="form-control" name="bio" placeholder="Bio" id="bio">{% if bio %}{{ bio }}{% endif %}</textarea>
-                <label for="bio">Bio:</label>
-            </div>
-            <button id="submit" type="submit" class="btn btn-primary mb-3">Submit</button>
-            <a class="btn btn-danger mb-3" href="{% url 'index' %}">Skip</a>
         </form>
     </div>
-</div> 
+</div>
+<script>
+    // Auto fill location input when user types
+    new Autocomplete('#autocomplete', {
+        search: (input) => {
+            // console.log(input)
+            const url = `get_hometown/?search=${input}`;
+            return new Promise((resolve) => {
+                fetch(url)
+                .then((response) => response.json())
+                .then((data) => {
+                    // console.log(data.payload)
+                    resolve(data.payload);
+                });
+            });
+        }});
+</script>
 {% endblock %}

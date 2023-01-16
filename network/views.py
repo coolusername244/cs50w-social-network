@@ -3,14 +3,14 @@ import json
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_protect
 
 
-from .models import User, Hometown, Posts, Likes
-from .forms import PostForm
+from .models import User, Hometown, Posts, Likes, UserInfo
+from .forms import PostForm, UserInfoForm
 
 
 def index(request):
@@ -139,43 +139,53 @@ def register(request):
 
 @csrf_protect
 def edit_profile(request):
-    if request.user.is_authenticated:
-        if request.method == "POST":
-            # Gather form data
-            first_name = request.POST["first_name"]
-            last_name = request.POST["last_name"]
-            profile_pic = request.POST["profile_pic"]
-            birthday = request.POST["birthday"]
-            location = request.POST["location"]
-            bio = request.POST["bio"]
-
-            # Update user profile
-            User.objects.filter(username=request.user).update(
-                first_name=first_name,
-                last_name=last_name,
-                profile_pic=profile_pic,
-                birthday=birthday,
-                location=location,
-                bio=bio,
-            )
-
-            # Redirect to home page
-            return HttpResponseRedirect(reverse("index"))
-        else:
-            user = User.objects.get(id=request.user.id)
-
-            context = {
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "profile_pic": user.profile_pic,
-                "birthday": user.birthday,
-                "location": user.location,
-                "bio": user.bio.strip(),
-            }
-
-            return render(request, "network/edit_profile.html", context)
+    if request.method == "POST":
+        form = UserInfoForm(request.POST, request.FILES)
+        # if the user is updating for the second+ time:
+        try:
+            user_info = UserInfo.objects.get(user=request.user)
+            if form.is_valid():
+                user_info = get_object_or_404(UserInfo, user=request.user)
+                if form.cleaned_data["profile_pic"]:
+                    user_info.profile_pic = form.cleaned_data["profile_pic"]
+                user_info.location = form.cleaned_data["location"]
+                user_info.birthday =form.cleaned_data["birthday"]
+                user_info.bio = form.cleaned_data["bio"]
+                user_info.save()
+                return HttpResponseRedirect(reverse("index"))
+            else:
+                context = {
+                    "form": form
+                }
+                return render(request, "network/edit_profile.html", context)
+        # If the user is updating for the first time:
+        except UserInfo.DoesNotExist:   
+            if form.is_valid():
+                form.instance.user = request.user
+                form.save()
+                return HttpResponseRedirect(reverse("index"))
+            else:
+                context = {
+                    "form": form
+                }
+                return render(request, "network/edit_profile.html", context)
     else:
-        return HttpResponseRedirect(reverse("login"))
+        # check if user has filled form before
+        try:
+            user_info = UserInfo.objects.get(user=request.user)
+            form = UserInfoForm(instance=user_info)
+            context = {
+                "user_info": user_info,
+                "form": form
+            }
+            return render(request, 'network/edit_profile.html', context)
+        # if user hasnt filled form before, render blank form
+        except UserInfo.DoesNotExist:
+            form = UserInfoForm()
+            context = {
+                "form": form
+            }
+            return render(request, 'network/edit_profile.html', context)
 
 
 def get_hometown(request):
