@@ -2,7 +2,7 @@
 
 body {
     font-family: "Lato", sans-serif;
-    height: 100vh;
+    min-height: 100vh;
     background-image: linear-gradient(180deg, lightblue, white)
 }
 
@@ -12,6 +12,7 @@ body {
 
 .content {
     overflow-y: scroll;
+    margin: auto;
     width: 80%;
     padding: 3rem;
     background: rgba(255, 255, 255, .5);
@@ -28,6 +29,16 @@ body {
 
 #profile-pic {
     max-width: 15rem;
+    border-radius: 100%;
+    border: solid white 4px;
+}
+
+#profile-info {
+    background-image: linear-gradient(180deg, rgb(219, 232, 167), rgba(255, 255, 255, .5));
+    margin: auto;
+    width: 80%;
+    padding: 3rem;
+    position: relative;
 }
 
 #create-post-button {

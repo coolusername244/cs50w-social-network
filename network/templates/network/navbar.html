@@ -27,7 +27,7 @@
             </ul>
             <span class="navbar-text">
                 {% if user.is_authenticated %}
-                    Signed in as <a href="#"><strong id="logged-in-user">{{ request.user }}</strong></a>
+                    Signed in as <a href="{% url 'profile' user.id %}"><strong id="logged-in-user">{{ request.user }}</strong></a>
                 {% endif %}
             </span>
         </div>
