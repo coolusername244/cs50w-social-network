@@ -24,23 +24,40 @@ document.addEventListener("DOMContentLoaded", () => {
     // On click, make the post editable if the post belongs to the user
     document.querySelectorAll('.edit').forEach((element) => {
         element.onclick = function() {
+            // Hide edit button
             element.style.display = "none";
+            // Show save button
             element.nextElementSibling.style.display = "inline";
+            // Get current post text div
             const postDivText = element.parentElement.parentElement.parentElement.querySelector('.card-text');
-            postDivText.contentEditable = true;
-            postDivText.classList.add('form-control');
-            postDivText.focus();
+            // Replace p with textarea
+            const editText = document.createElement('textarea')
+            editText.classList.add("form-control")
+            editText.classList.add('card-text')
+            editText.innerHTML = postDivText.innerHTML.trim()
+            postDivText.replaceWith(editText)
+            // // Set cursour to end of string
+            const end = editText.innerHTML.length;
+            editText.setSelectionRange(end, end)
+            editText.focus();
         };
     });
 
     // On click, make the post uneditable and save the changes to database
     document.querySelectorAll('.save-changes').forEach((element) => {
         element.onclick = function() {
+            // Hide save button
             element.style.display = "none";
+            // Show edit button
             element.previousElementSibling.style.display = "inline";
+            // Get updated text
             const postDivText = element.parentElement.parentElement.parentElement.querySelector('.card-text');
-            postDivText.contentEditable = false;
-            postDivText.classList.remove('form-control');
+            // Replace p with textarea
+            const editedText = document.createElement('p')
+            editedText.classList.add('card-text')
+            editedText.innerHTML = postDivText.value.trim()
+            postDivText.replaceWith(editedText)
+            // Send updated text to database
             const postId = element.parentElement.parentElement.parentElement.getAttribute('id').slice(5);
             const csrftoken = element.previousElementSibling.previousElementSibling.value;
             fetch(`/posts/${postId}`, {
@@ -49,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     'X-csrftoken': csrftoken
                 },
                 body: JSON.stringify({
-                    post: postDivText.textContent,
+                    post: editedText.textContent,
                 })
             });
         };
