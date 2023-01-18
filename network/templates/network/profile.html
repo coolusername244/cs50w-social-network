@@ -12,7 +12,10 @@
                 <img id="profile-pic" src="{{ user_info.profile_pic.url }}" alt="profile pic">
             </div>
             <div class="col-4">
-                <p>
+                <p hidden id="user-id">
+                    {{ user.id }}
+                </p> 
+                <p id="username">
                     @ {{ user_info.user }}
                 </p>
                 <p>
@@ -22,14 +25,21 @@
                     <i class="bi bi-map"></i> {{ user_info.location }}
                 </p>
                 <p>
-                    Followers:
+                    Followers: <span id="followers">{{ followers }}</span>
                 </p>
                 <p>
-                    Following:
+                    Following: {{ following }}
                 </p>
-                {% if request.user != user_info.user %}
+                {% if request.user != user_info.user and request.user.is_authenticated %}
                 <div class="text-center">
-                    <button class="btn btn-primary">Follow</button>
+                    <form id="follow-unfollow">
+                        {% csrf_token %}
+                        {% if is_following %}
+                            <button class="btn btn-primary">Unfollow</button>
+                        {% else %}
+                            <button class="btn btn-primary">Follow</button>
+                        {% endif %}
+                    </form>
                 </div>
                 {% endif %}
             </div>
@@ -64,62 +74,112 @@
         </div>
     {% endif %}
 
-    <div id="posts">
-        {% if posts %}
-            {% for post in page_obj %}
-                <div class="card mb-3" id="post-{{ post.id }}">
-                    <h5 class="card-header">{{ post.user }} wrote: 
-                        {% if request.user == post.user %}
-                            <form class="edit-delete">
-                                {% csrf_token %}
-                                <span class="edit"><i class="bi bi-pencil-square"></i></span>
-                                <span type="submit" class="save-changes"><i class="bi bi-check-circle"></i></span> 
-                                | 
-                                <span class="delete"><i class="bi bi-x-circle"></i></span>
-                            </form>
-                        {% endif %}
-                    </h5>               
-                    <div class="card-body">
-                        <p class="card-text">
-                            {{ post.post }}
-                        </p>
-                        <p>
-                            {{ post.date }}
-                        </p>
-                        <form>
-                            {% csrf_token %}
-                            <p class="btn btn-sm btn-outline-danger like-button bi bi-heart">
-                                {{ post.likes_count }}
+        <div id="posts">
+            {% if posts %}
+                {% for post in page_obj %}
+                    <div class="card mb-3" id="post-{{ post.id }}">
+                        <h5 class="card-header">{{ post.user }} wrote: 
+                            {% if request.user == post.user %}
+                                <form class="edit-delete">
+                                    {% csrf_token %}
+                                    <span class="edit"><i class="bi bi-pencil-square"></i></span>
+                                    <span type="submit" class="save-changes"><i class="bi bi-check-circle"></i></span> 
+                                    | 
+                                    <span class="delete"><i class="bi bi-x-circle"></i></span>
+                                </form>
+                            {% endif %}
+                        </h5>               
+                        <div class="card-body">
+                            <p class="card-text">
+                                {{ post.post }}
                             </p>
-                        </form>
+                            <p>
+                                {{ post.date }}
+                            </p>
+                            <form>
+                                {% csrf_token %}
+                                <p class="btn btn-sm btn-outline-danger like-button bi bi-heart">
+                                    {{ post.likes_count }}
+                                </p>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            {% endfor %}
-        {% endif %}
-
-        {% if posts|length >= 11 %}
-            <ul class="pagination justify-content-center">
-                {% if page_obj.has_previous %}
-                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
-                {% endif %}
-                {% for i in page_range|default_if_none:page_obj.paginator.get_elided_page_range %}
-                    {% if page_obj.number == i %}
-                        <li class="active page-item"><span class="page-link">{{ i }} <span class="sr-only"></span></span>
-                        </li>
-                    {% else %}
-                        {% if i == page_obj.paginator.ELLIPSIS %}
-                            <li class="page-item"><span class="page-link">{{ i }}</span></li>
-                        {% else %}
-                            <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
-                        {% endif %}
-                    {% endif %}
                 {% endfor %}
-                {% if page_obj.has_next %}
-                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
-                {% endif %}
-            </ul>
-        {% endif %}
-    </div>
-    </div>
+            {% endif %}
 
+            {% if posts|length >= 11 %}
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                    {% endif %}
+                    {% for i in page_range|default_if_none:page_obj.paginator.get_elided_page_range %}
+                        {% if page_obj.number == i %}
+                            <li class="active page-item"><span class="page-link">{{ i }} <span class="sr-only"></span></span>
+                            </li>
+                        {% else %}
+                            {% if i == page_obj.paginator.ELLIPSIS %}
+                                <li class="page-item"><span class="page-link">{{ i }}</span></li>
+                            {% else %}
+                                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                    {% endif %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+<script>
+    let followUnfollowButton = document.querySelector('#follow-unfollow').children[1]
+    let buttonText = followUnfollowButton.innerHTML
+    let followers = parseInt(document.querySelector('#followers').innerHTML)
+    const userId = parseInt(document.querySelector('#user-id').innerHTML.trim())
+    
+    followUnfollowButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        const csrftoken = followUnfollowButton.previousElementSibling.value
+        if (followUnfollowButton.innerHTML == "Follow") {
+            fetch(`/profile/${userId}/follow`, {
+                method: 'POST',
+                headers:{
+                    'X-csrftoken': csrftoken
+                },
+                body: JSON.stringify({
+                    followee: userId
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status == 200) {
+                    followUnfollowButton.innerHTML = "Unfollow";
+                    followers++
+                    document.querySelector('#followers').innerHTML = followers
+                    console.log(followers)
+                }
+            })
+        } else {
+            followUnfollowButton.innerHTML = "Follow";
+            fetch(`/profile/${userId}/unfollow`, {
+                method: 'DELETE',
+                headers:{
+                    'X-csrftoken': csrftoken
+                },
+                body: JSON.stringify({
+                    followee: userId
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status == 200) {
+                    followUnfollowButton.innerHTML = "Follow";
+                    followers--;
+                    document.querySelector('#followers').innerHTML = followers            
+                }
+            })
+        }
+
+    })
+</script>
 {% endblock %}

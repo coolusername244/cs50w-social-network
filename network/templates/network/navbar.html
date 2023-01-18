@@ -6,10 +6,10 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarText">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                {% if user.is_authenticated %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'index' %}">All Posts</a>
                 </li>
+                {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="#">Following</a>
                     </li>
@@ -26,8 +26,8 @@
                 {% endif %}                       
             </ul>
             <span class="navbar-text">
-                {% if user.is_authenticated %}
-                    Signed in as <a href="{% url 'profile' user.id %}"><strong id="logged-in-user">{{ request.user }}</strong></a>
+                {% if request.user.is_authenticated %}
+                    Signed in as <a href="{% url 'profile' request.user.id %}"><strong id="logged-in-user">{{ request.user }}</strong></a>
                 {% endif %}
             </span>
         </div>

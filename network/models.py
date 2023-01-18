@@ -37,3 +37,10 @@ class Likes(models.Model):
 
     post = models.ForeignKey('Posts', on_delete=models.CASCADE)
     user = models.ForeignKey('User', on_delete=models.CASCADE)
+
+class Following(models.Model):
+    class Meta:
+        verbose_name_plural = 'Followings'
+
+    follower = models.ForeignKey('User', on_delete=models.CASCADE, related_name="follower")
+    followee = models.ForeignKey('User', on_delete=models.CASCADE, related_name="followee")

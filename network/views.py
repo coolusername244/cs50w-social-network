@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_protect
 
 
-from .models import User, Hometown, Posts, Likes, UserInfo
+from .models import User, Hometown, Posts, Likes, UserInfo, Following
 from .forms import PostForm, UserInfoForm
 
 
@@ -43,15 +43,37 @@ def profile(request, user_id):
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     page_range = paginator.get_elided_page_range(number=page_number, on_each_side=1)
+    followers = Following.objects.filter(followee=user_id).count()
+    following = Following.objects.filter(follower=user_id).count()
+    is_following = Following.objects.filter(follower=request.user.id, followee = user_id)
 
     context = {
+        "user": user,
         "user_info": user_info,
         "posts": posts,
         "post_form": post_form,
         "page_obj": page_obj,
         "page_range": page_range,
+        "followers": followers,
+        "following": following,
+        "is_following": is_following,
     }
     return render(request, "network/profile.html", context)
+
+
+def follow(request, user_id):
+    if request.method == "POST":
+        user = User.objects.get(id=user_id)
+        Following.objects.create(follower=request.user, followee=user)
+        return JsonResponse({"status": 200})
+
+
+
+def unfollow(request, user_id):
+    if request.method == "DELETE":
+        Following.objects.filter(follower=request.user, followee=user_id).delete()
+        return JsonResponse({"status": 200})
+
 
 
 @csrf_protect
@@ -61,11 +83,11 @@ def add_post(request):
         if form.is_valid():
             form.instance.user = request.user
             form.save()
-            return HttpResponseRedirect(reverse('index'))
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
         else:
-            return HttpResponseRedirect(reverse('index'))
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
-        return HttpResponseRedirect(reverse('index'))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 @csrf_protect
