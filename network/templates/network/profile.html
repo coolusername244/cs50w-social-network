@@ -108,9 +108,13 @@
                             </p>
                             <form>
                                 {% csrf_token %}
-                                <p class="btn btn-sm btn-outline-danger like-button bi bi-heart">
-                                    {{ post.likes_count }}
-                                </p>
+                                <p class="btn btn-sm btn-outline-danger like-button">
+                                    {% if post.id in has_liked_ids %}
+                                        <i class="bi bi-heart-fill"></i>
+                                    {% else %}
+                                        <i class="bi bi-heart"></i>
+                                    {% endif %}
+                                <span class="like-count">{{ post.likes_count }}</span>
                             </form>
                         </div>
                     </div>

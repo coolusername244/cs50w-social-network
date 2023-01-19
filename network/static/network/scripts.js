@@ -9,20 +9,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // On click, show the div for user to create a new post
-    document.querySelector('#create-post-button').addEventListener('click', () => {
-        document.querySelector('#new-post').style.display = 'block';
-        document.querySelector('#create-post-button').style.display = 'none';
-        document.querySelector('#no-posts').style.display = 'none';
-    });
+    if (document.querySelector('#create-post-button')) {
+        document.querySelector('#create-post-button').addEventListener('click', () => {
+            document.querySelector('#new-post').style.display = 'block';
+            document.querySelector('#create-post-button').style.display = 'none';
+            document.querySelector('#no-posts').style.display = 'none';
+        });
+    }
    
     // On click, hide the div for user to create a new post
-    document.querySelector('#close-new-post').addEventListener('click', () => {
-        document.querySelector('#id_post').value = '';
-        document.querySelector('#new-post').style.display = 'none';
-        document.querySelector('#create-post-button').style.display = 'block';
-        document.querySelector('#no-posts').style.display = 'block';
-
-    });
+    if (document.querySelector('#close-new-post')) {
+        document.querySelector('#close-new-post').addEventListener('click', () => {
+            document.querySelector('#id_post').value = '';
+            document.querySelector('#new-post').style.display = 'none';
+            document.querySelector('#create-post-button').style.display = 'block';
+            document.querySelector('#no-posts').style.display = 'block';
+    
+        });
+    }
 
     // On click, make the post editable if the post belongs to the user
     document.querySelectorAll('.edit').forEach((element) => {
@@ -110,9 +114,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (result.message === 'Like added') {
                     likes++;
                     element.querySelector('.like-count').innerHTML = likes;
+                    let heart = element.querySelector('.bi-heart')
+                    heart.classList.add('bi-heart-fill')
+                    heart.classList.remove('bi-heart')
                 } else if (result.message === 'Like removed') {
                     likes--;
                     element.querySelector('.like-count').innerHTML = likes;
+                    let heart = element.querySelector('.bi-heart-fill')
+                    heart.classList.remove('bi-heart-fill')
+                    heart.classList.add('bi-heart')
                 }
             });
         };

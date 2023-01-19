@@ -50,7 +50,12 @@
                             <form>
                                 {% csrf_token %}
                                 <p class="btn btn-sm btn-outline-danger like-button">
-                                    <i class="bi bi-heart"></i> <span class="like-count">{{ post.likes_count }}</span>
+                                    {% if post.id in has_liked_ids %}
+                                        <i class="bi bi-heart-fill"></i>
+                                    {% else %}
+                                        <i class="bi bi-heart"></i>
+                                    {% endif %}
+                                <span class="like-count">{{ post.likes_count }}</span>
                                 </p>
                             </form>
                         </div>
