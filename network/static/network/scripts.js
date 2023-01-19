@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector('#create-post-button').addEventListener('click', () => {
         document.querySelector('#new-post').style.display = 'block';
         document.querySelector('#create-post-button').style.display = 'none';
+        document.querySelector('#no-posts').style.display = 'none';
     });
    
     // On click, hide the div for user to create a new post
@@ -19,6 +20,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelector('#id_post').value = '';
         document.querySelector('#new-post').style.display = 'none';
         document.querySelector('#create-post-button').style.display = 'block';
+        document.querySelector('#no-posts').style.display = 'block';
+
     });
 
     // On click, make the post editable if the post belongs to the user

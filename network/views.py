@@ -220,7 +220,7 @@ def edit_profile(request):
                 user_info.birthday =form.cleaned_data["birthday"]
                 user_info.bio = form.cleaned_data["bio"]
                 user_info.save()
-                return HttpResponseRedirect(reverse("index"))
+                return HttpResponseRedirect(reverse("profile", kwargs={'user_id': request.user.id}))
             else:
                 context = {
                     "form": form
@@ -231,7 +231,7 @@ def edit_profile(request):
             if form.is_valid():
                 form.instance.user = request.user
                 form.save()
-                return HttpResponseRedirect(reverse("index"))
+                return HttpResponseRedirect(reverse("profile", kwargs={'user_id': request.user.id}))
             else:
                 context = {
                     "form": form

@@ -8,7 +8,7 @@ class User(AbstractUser):
 class UserInfo(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE)
     profile_pic = models.ImageField(blank=True, null=True, upload_to="images/")
-    birthday = models.DateField(blank=True, null=True)
+    birthday = models.DateField()
     location = models.CharField(max_length=200, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
 

@@ -28,7 +28,7 @@
                     <i class="bi bi-gift"></i> {{ user_info.birthday }}
                 </p>
                 <p>
-                    <i class="bi bi-map"></i> {{ user_info.location }}
+                    <i class="bi bi-map"></i> {{ user_info.location|default:"Planet Earth" }}
                 </p>
                 <p>
                     Followers: <span id="followers">{{ followers }}</span>
@@ -36,22 +36,27 @@
                 <p>
                     Following: {{ following }}
                 </p>
-                {% if request.user != user_info.user and request.user.is_authenticated %}
+                {% if request.user.is_authenticated %}
                 <div class="text-center">
-                    <form id="follow-unfollow">
-                        {% csrf_token %}
-                        {% if is_following %}
-                            <button class="btn btn-primary">Unfollow</button>
-                        {% else %}
-                            <button class="btn btn-primary">Follow</button>
-                        {% endif %}
-                    </form>
+                    {% if request.user ==  user_info.user %}
+                        <a href="{% url 'edit_profile' %}"><button class="btn btn-primary">Update Your Profile</button></a>
+                    {% else %}
+                        <form id="follow-unfollow">
+                            {% csrf_token %}
+                            {% if is_following %}
+                                <button class="btn btn-primary">Unfollow</button>
+                            {% else %}
+                                <button class="btn btn-primary">Follow</button>
+                            {% endif %}
+                        </form>
+                    {% endif %}
+                    
                 </div>
                 {% endif %}
             </div>
             <div class="col-4">
                 <p>
-                    <i class="bi bi-person"></i><br>{{ user_info.bio }}
+                    <i class="bi bi-person"></i><br>{{ user_info.bio|default:"User has decided to remain anonymous" }}
                 </p>
             </div>
         </div>
@@ -79,7 +84,6 @@
             </div>
         </div>
     {% endif %}
-
         <div id="posts">
             {% if posts %}
                 {% for post in page_obj %}
@@ -111,6 +115,15 @@
                         </div>
                     </div>
                 {% endfor %}
+            {% else %}
+                    <div id="no-posts" class="text-center">
+                        {% if request.user ==  user_info.user %}
+                            <h4>You have made any posts yet!</h4>
+                            <h6>Click 'Add Post!' to get started!</h6>
+                        {% else %}
+                            <h4>This user hasn't posted anything yet, come back another time!</h4>
+                        {% endif %}
+                    </div>
             {% endif %}
 
             {% if posts|length >= 11 %}
