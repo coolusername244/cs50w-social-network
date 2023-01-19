@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // like button
     document.querySelectorAll('.like-button').forEach((element) => {
         element.onclick = function() {
-            let likes = parseInt(element.innerHTML);
+            let likes = parseInt(element.querySelector('.like-count').innerHTML);
             const postId = element.parentElement.parentElement.parentElement.getAttribute('id').slice(5);
             const csrftoken = element.previousElementSibling.value;
             fetch(`/like_post/${postId}`, {
@@ -109,10 +109,10 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(result => {
                 if (result.message === 'Like added') {
                     likes++;
-                    element.innerHTML = likes;
+                    element.querySelector('.like-count').innerHTML = likes;
                 } else if (result.message === 'Like removed') {
                     likes--;
-                    element.innerHTML = likes;
+                    element.querySelector('.like-count').innerHTML = likes;
                 }
             });
         };
